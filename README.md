@@ -25,3 +25,23 @@ Sample:
 |  7 | KEERT7          | reyrajam_2008     |       2009 |       1500 | 1-0      | 2020.11.01 | 00:00:00   | 00:00:00 |              1 |
 |  8 | DelaCruz007     | matiasgGM         |       1750 |       2053 | 0-1      | 2020.11.01 | 00:00:00   | 00:00:00 |              5 |
 |  9 | DiableRouge_2   | MecanismoAlterado |       2042 |       1725 | 0-1      | 2020.11.01 | 00:00:00   | 00:00:00 |              0 |
+
+### The following was added in after submission
+Some of the results are very odd, how can you blunder on move 0?
+
+Upon checking the games, people just like resigning immediately. Possibly a large number of these are cheating by artificially inflating the elo of another account.
+
+A table with more information, and also I changed from "FirstBlunder" to "Move by which a player has a winning position".
+
+|    | White           | Black             |   WhiteElo |   BlackElo | Result   | TimeControl   |   Plys (Half-Moves) | UTCDate    | UTCStart   | UTCEnd   |   FirstBlunder |
+|---:|:----------------|:------------------|-----------:|-----------:|:---------|:--------------|--------------------:|:-----------|:-----------|:---------|---------------:|
+|  0 | bernec          | glebmai           |       1770 |       1858 | 0-1      | 15+0          |                  62 | 2020.11.01 | 00:00:00   | 00:00:00 |             16 |
+|  1 | paranakulmichel | LordMorpheus      |       1964 |       1798 | 1-0      | 420+0         |                  91 | 2020.11.01 | 00:00:00   | 00:00:00 |             30 |
+|  2 | eli9A           | PedroSachica      |       1519 |       1864 | 0-1      | 420+0         |                 126 | 2020.11.01 | 00:00:00   | 00:00:00 |             30 |
+|  3 | mini10201       | jrdh11            |       1957 |       1211 | 1-0      | 180+2         |                  77 | 2020.11.01 | 00:00:00   | 00:00:00 |             13 |
+|  4 | Pevojed         | luisulloa         |       1305 |       1976 | 0-1      | 180+2         |                  80 | 2020.11.01 | 00:00:00   | 00:00:00 |             28 |
+|  5 | rosaliogomez    | Dennis_Vasquez    |       1985 |       1331 | 1-0      | 180+2         |                   1 | 2020.11.01 | 00:00:00   | 00:00:00 |              1 |
+|  6 | Ares-Michael    | chessnaturaleza   |       1344 |       1988 | 0-1      | 180+2         |                   0 | 2020.11.01 | 00:00:00   | 00:00:00 |              0 |
+|  7 | KEERT7          | reyrajam_2008     |       2009 |       1500 | 1-0      | 180+2         |                   1 | 2020.11.01 | 00:00:00   | 00:00:00 |              1 |
+|  8 | DelaCruz007     | matiasgGM         |       1750 |       2053 | 0-1      | 180+2         |                  44 | 2020.11.01 | 00:00:00   | 00:00:00 |             30 |
+|  9 | DiableRouge_2   | MecanismoAlterado |       2042 |       1725 | 0-1      | 180+2         |                   0 | 2020.11.01 | 00:00:00   | 00:00:00 |              0 |
