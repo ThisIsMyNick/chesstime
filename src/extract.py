@@ -1,12 +1,13 @@
-from multiprocessing import Process, Queue, current_process
+from multiprocessing import Process, Queue
 import asyncio
 import chess
 import chess.pgn
 import chess.engine
 import csv
 import time
+import io
 
-engines = {}
+#engines = {}
 
 def find_first_blunder(input, output):
     """
@@ -17,13 +18,15 @@ def find_first_blunder(input, output):
     """
     engine = chess.engine.SimpleEngine.popen_uci("../stockfish")
 
-    for game in iter(input.get, 'STOP'):
+    for sgame in iter(input.get, 'STOP'):
+        game = chess.pgn.read_game(io.StringIO(sgame))
         sf_prev_eval = None
         sf_eval = None
         counter = 0
 
         while True:
             if game.is_end():
+                counter = 0
                 break
             if counter > 60:
                 break
@@ -33,39 +36,38 @@ def find_first_blunder(input, output):
                 break
 
             sf_prev_eval = sf_eval
-            info = engine.analyse(game.board(), chess.engine.Limit(time=0.1))
+            info = engine.analyse(game.board(), chess.engine.Limit(depth=12))
             sf_eval = info["score"]
             game = game.next()
             counter += 1
 
         if counter < 12: #skip throws
-            output.put((game, 0, None, None))
+            output.put((0, None, None, None, None, None, None, None))
         else:
-            last_board = game.parent.board()
-            output.put((game, counter, last_board, sf_eval.relative.score()))
+            last_board = str(game.parent.parent.board().fen())
+            last_move = str(game.parent.move.uci())
+            white_elo = int(game.game().headers['WhiteElo'])
+            black_elo = int(game.game().headers['BlackElo'])
+            turn = 1 if game.turn() == chess.WHITE else 0
+            if game.clock() is None:
+                output.put((0, None, None, None, None, None, None, None))
+            else:
+                clock = int(game.clock())
+                output.put((counter, last_board, last_move, int(sf_eval.white().score(mate_score=10000)), white_elo, black_elo, turn, clock))
     engine.quit()
 
-CPU_COUNT = 3
-TOTAL_GAMES = 10000
+CPU_COUNT = 24
+TOTAL_GAMES = 50000
 BATCH_SIZE = 20*CPU_COUNT
 
 def analyze_games():
-    #i_f = open("../data/2020-11.pgn")
-    i_f = open("filtered.pgn")
-    o_f = open("reduced.csv", "a")
+    i_f = open("../../raid-storage/filtered2.pgn")
+    o_f = open("../../raid-storage/reduced.csv", "w")
 
-    #skip N we already read
+    #ignore N games (already collected)
     i = 0
     while i > 0:
         game = chess.pgn.read_game(i_f)
-        if game.headers['Event'] != "Rated Blitz game":
-            continue
-        white_elo = int(game.headers['WhiteElo'])
-        black_elo = int(game.headers['BlackElo'])
-
-        if not (1000 <= white_elo < 2000) or \
-           not (1000 <= black_elo < 2000):
-           continue
         i -= 1
 
     writer = csv.writer(o_f)
@@ -77,37 +79,39 @@ def analyze_games():
         games = []
         while len(games) < BATCH_SIZE:
             game = chess.pgn.read_game(i_f)
-            if game.headers['Event'] != "Rated Blitz game":
-                continue
-            white_elo = int(game.headers['WhiteElo'])
-            black_elo = int(game.headers['BlackElo'])
+            if game is None:
+                break
+            games.append(str(game))
 
-            if not (1000 <= white_elo < 2000) or \
-               not (1000 <= black_elo < 2000):
-               continue
-            games.append(game)
+        if games == []:
+            break
 
         task_queue = Queue()
         done_queue = Queue()
 
         for game in games:
-            task_queue.put(game)
+            try:
+                task_queue.put(game)
+            except:
+                pass
 
         for i in range(CPU_COUNT):
-            mp = Process(target=find_first_blunder, args=(task_queue, done_queue), name=i).start()
+            try:
+                mp = Process(target=find_first_blunder, args=(task_queue, done_queue), name=i).start()
+            except:
+                pass
 
         for i in range(len(games)):
-            game, counter, last_board, score = done_queue.get()
-            if counter == 0 or counter == 60:
-                continue
+            try:
+                counter, last_board, last_move, score, white_elo, black_elo, turn, clock = done_queue.get()
+                if counter == 0 or counter >= 60:
+                    continue
 
-            white_elo = int(game.game().headers['WhiteElo'])
-            black_elo = int(game.game().headers['BlackElo'])
-            turn = 1 if game.turn() == chess.WHITE else 0
-            clock = game.clock()
-            writer.writerow([counter, last_board.fen(), score, white_elo, black_elo, turn, clock])
+                writer.writerow([counter, last_board, last_move, score, white_elo, black_elo, turn, clock])
+                games_processed += 1
+            except:
+                pass
 
-            games_processed += 1
 
         for i in range(CPU_COUNT):
             task_queue.put('STOP')
