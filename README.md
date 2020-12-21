@@ -1,6 +1,9 @@
 # chesstime
 MMDS project with lichess database
 
+### Presentation
+https://youtu.be/yF2rdFJDvAY
+
 ### Dataset
 
 Given a board state, what is the most likely blunder a player will make? Not the best move, nor the most human but correct move, I'm concerned only with the most human blunder.
